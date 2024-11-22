@@ -26,7 +26,7 @@ If the origin supports post-quantum hybrid key agreement, it can use HelloRetryR
 
 ### Cloudflare zone settings
 
-The method described above is the one used to allow Cloudflare to support post-quantum to all outbound connections. However, if your origin server supports PQC and prefers it, you can use the [API](/api/operations/zone-cache-settings-change-origin-post-quantum-encryption-setting) to adjust it and avoid the extra round trip.
+The method described above is the one Cloudflare uses to support post-quantum to all outbound connections. However, if your origin server supports PQC and prefers it, you can use the [API](/api/operations/zone-cache-settings-change-origin-post-quantum-encryption-setting) to adjust your Cloudflare zone settings and avoid the extra round trip.
 
 It is also possible to opt out of PQC using the same API endpoint.
 
@@ -51,34 +51,15 @@ The possible values are:
 
 ### Origin server
 
-To make sure that your origin server prefers the post-quantum key agreement use the `bssl` tool of [BoringSSL](https://github.com/google/boringssl):
-
-<Example>
-```bash
-$ bssl client -connect (your server):443 -curves X25519MLKEM768 ```
-Verify that the `ECDHE curve` in the handshake output indicates `X25519MLKEM768`.
-</Example>
-
-1. Use Cloudflare's [fork of BoringSSL](https://github.com/cloudflare/boringssl-pq).
-2. Use the `bssl` tool of BoringSSL:
-
-- If you set your Cloudflare zone to `supported`, check that your origin prefers the hybrid key agreement, by using the `-disable-second-keyshare` parameter:
-
-<Example>
-```bash
-$ cd boringssl-pq && cmake -B build && make -C build
-$ build/bssl client -connect (your server):443 -curves X25519:X25519MLKEM768 -disable-second-keyshare
-```
-Verify that the `ECDHE curve` in the handshake output indicates `X25519MLKEM768`.
-</Example>
-
-- If you set your Cloudflare zone to `preferred`, check that your origin supports the correct key agreement:
+To make sure that your origin server prefers the post-quantum key agreement, use the `bssl` tool of [BoringSSL](https://github.com/google/boringssl):
 
 <Example>
 ```bash
 $ bssl client -connect (your server):443 -curves X25519MLKEM768
 ```
+
 Verify that the `ECDHE curve` in the handshake output indicates `X25519MLKEM768`.
+
 </Example>
 
 [^1]: When, to remove a round trip, a client makes a guess of what the server supports.
